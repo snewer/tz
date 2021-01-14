@@ -42,6 +42,22 @@ $this->params['breadcrumbs'][] = $this->title;
                 'class' => yii\grid\ActionColumn::class,
                 'template' => '{view}',
                 'buttons' => [
+                    'view' => function($url, $model) {
+                        $prev = Request::findPreviousOne($model);
+                        if ($prev)
+                         return Html::a("№ {$prev->id}", ['request/view', 'id' => $prev->id], [
+                             'class' => 'btn btn-link',
+                         ]);
+
+                         return '-';
+                    }
+                ],
+                'header' => 'Предыдущая заявка',
+            ],
+            [
+                'class' => yii\grid\ActionColumn::class,
+                'template' => '{view}',
+                'buttons' => [
                     'view' => function ($url) {
                         return Html::a('Просмотр', $url, [
                             'class' => 'btn btn-primary',

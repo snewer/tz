@@ -7,6 +7,7 @@ use app\models\Request;
 use app\models\RequestSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use app\models\Manager;
 
 class RequestController extends Controller
 {
@@ -33,6 +34,22 @@ class RequestController extends Controller
         $model = new Request();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $prevReq = Request::findPreviousOne($model);
+            $manager_id = null;
+            // If model has previous record
+            if ($prevReq)
+            {
+                // Trying to get manager from previous record
+                $prevManager = Manager::findOne($prevReq->manager_id);
+                if ($prevManager->is_works)
+                    $manager_id = $prevManager->id;
+            }
+            // Getting manager with minimal request count
+            // One manager is always working, so we don't process null case
+            $manager_id = $manager_id ? $manager_id : Manager::getMinimalRequestCountOne()->id;
+            // Set manager id
+            $model->manager_id = $manager_id;
+            $model->save();
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
